@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { Grid, Header, Icon, Form, Segment, Button, Message} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { Grid, Header, Icon, Form, Segment, Button, Message} from 'semantic-ui-react';
 import firebase from '../../firebase';
+import DisplayIf from '../Common/DisplayIf';
+import ErrorList from '../Common/ErrorList';
 
 const Register = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
+    
+    const [errors, setErrors] = useState([]);
+    const [loading, setLoading] = useState(false);
     
     const handleChange = e => {
         const {name, value} = e.target;
@@ -28,18 +33,53 @@ const Register = () => {
         }
     }
 
+    const isFormEmpty = () => {
+        return !username.length || !email.length || !password.length || !passwordConfirmation.length;
+    }
+
+    const isPasswordValid = () => {
+        return password.length > 6
+            && passwordConfirmation.length > 6
+            && password === passwordConfirmation;
+    }
+
+    const isFormValid = () => {
+        let errors = [];
+
+        if (isFormEmpty()) {
+            errors.push({ message: 'Fill in all fields' });
+        } else if (!isPasswordValid()) {
+            errors.push({ message: 'Password is invalid' });
+        }
+
+        setErrors(errors);
+        return !errors.length;
+    }
+
     const handleSubmit = e => {
         e.preventDefault();
-        // Enable sign-in methods in Authentication tab of Firebase
-        firebase
-            .auth()
-            .createUserWithEmailAndPassword(email, password)
-            .then(createdUser => {
-                console.log(createdUser);
-            })
-            .catch(error => {
-                console.log(error);
-            })
+        if (isFormValid()) {
+            setErrors([]);
+            setLoading(true);
+
+            // Enable sign-in methods in Authentication tab of Firebase
+            firebase
+                .auth()
+                .createUserWithEmailAndPassword(email, password)
+                .then(createdUser => {
+                    console.log(createdUser);
+                    setLoading(false);
+                })
+                .catch(error => {
+                    console.log(error);
+                    setLoading(false);
+                    setErrors([error]);
+                })
+        }
+    }
+
+    const handleInputError = name => {
+        return errors.some(error => error.message.toLowerCase().includes(name)) ? 'error' : '';
     }
 
     return (
@@ -58,6 +98,7 @@ const Register = () => {
                             iconPosition="left"
                             placeholder="Username"
                             onChange={handleChange}
+                            className={handleInputError('username') ? 'error' : ''}
                             type="text"
                             value={username}
                         />
@@ -68,6 +109,7 @@ const Register = () => {
                             iconPosition="left"
                             placeholder="Email"
                             onChange={handleChange}
+                            className={handleInputError('email') ? 'error' : ''}
                             type="email"
                             value={email}
                         />
@@ -78,6 +120,7 @@ const Register = () => {
                             iconPosition="left"
                             placeholder="Password"
                             onChange={handleChange}
+                            className={handleInputError('password') ? 'error' : ''}
                             type="password"
                             value={password}
                         />
@@ -88,12 +131,25 @@ const Register = () => {
                             iconPosition="left"
                             placeholder="Password Confirmation"
                             onChange={handleChange}
+                            className={handleInputError('password') ? 'error' : ''}
                             type="password"
                             value={passwordConfirmation}
                         />
-                        <Button color="orange" fluid size="large">Submit</Button>
+                        <Button
+                            color="orange"
+                            fluid
+                            size="large"
+                            className={loading ? 'loading' : ''}
+                            disabled={loading}
+                        >Submit</Button>
                     </Segment>
                 </Form>
+                <DisplayIf condition={errors.length}>
+                    <Message error>
+                        <h3>Error</h3>
+                        <ErrorList errors={errors} />
+                    </Message>
+                </DisplayIf>
                 <Message>Already a user? <Link to="/login">Login</Link></Message>
             </Grid.Column>
         </Grid>
