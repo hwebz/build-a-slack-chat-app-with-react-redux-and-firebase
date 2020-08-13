@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Grid, Header, Icon, Form, Segment, Button, Message} from 'semantic-ui-react';
+import md5 from 'md5';
 import firebase from '../../firebase';
 import DisplayIf from '../Common/DisplayIf';
 import ErrorList from '../Common/ErrorList';
@@ -13,6 +14,8 @@ const Register = () => {
     
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    const usersRef = firebase.database().ref('users');
     
     const handleChange = e => {
         const {name, value} = e.target;
@@ -68,7 +71,18 @@ const Register = () => {
                 .createUserWithEmailAndPassword(email, password)
                 .then(createdUser => {
                     console.log(createdUser);
-                    setLoading(false);
+                    createdUser.user.updateProfile({
+                        displayName: username,
+                        photoURL: `https://www.gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon&f=y`
+                    }).then(() => {
+                        saveUser(createdUser.user).then(() => {
+                            console.log('User saved');
+                            setLoading(false);
+                        })
+                    }).catch(error => {
+                        setLoading(false);
+                        setErrors([error]);
+                    });
                 })
                 .catch(error => {
                     console.log(error);
@@ -80,6 +94,18 @@ const Register = () => {
 
     const handleInputError = name => {
         return errors.some(error => error.message.toLowerCase().includes(name)) ? 'error' : '';
+    }
+
+    // Save user to database on Firebase
+    // Use realtime database and enable read and write accesses
+    // Create 'users' collection
+    const saveUser = user => {
+        const { uid, displayName, photoURL } = user;
+
+        return usersRef.child(uid).set({
+            name: displayName,
+            avatar: photoURL
+        });
     }
 
     return (
