@@ -11,8 +11,6 @@ const Login = () => {
     
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(false);
-
-    const usersRef = firebase.database().ref('users');
     
     const handleChange = e => {
         const {name, value} = e.target;
