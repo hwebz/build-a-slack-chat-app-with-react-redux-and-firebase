@@ -13,10 +13,12 @@ import firebase from './firebase';
 import 'semantic-ui-css/semantic.min.css';
 import rootReducer from './reducers';
 import { setUser } from './actions'
+import DisplayIf from './components/Common/DisplayIf';
+import Spinner from './Spinner';
 
 const store = createStore(rootReducer, composeWithDevTools());
 
-const Root = ({ setUser }) => {
+const Root = ({ setUser, isLoading }) => {
   const history = useHistory();
 
   useEffect(() => {
@@ -29,13 +31,24 @@ const Root = ({ setUser }) => {
   }, []);
 
   return (
-    <Switch>
-      <Route path="/" exact component={App} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
-    </Switch>
+    <React.Fragment>
+      <DisplayIf condition={!isLoading}>
+        <Switch>
+          <Route path="/" exact component={App} />
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
+        </Switch>
+      </DisplayIf>
+      <DisplayIf condition={isLoading}>
+        <Spinner />
+      </DisplayIf>
+    </React.Fragment>
   )
 }
+
+const mapStateToProps = state => ({
+  isLoading: state.user.isLoading
+})
 
 const RootWithAuth = withRouter(connect(null, { setUser })(Root));
 
