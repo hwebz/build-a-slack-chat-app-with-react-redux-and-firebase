@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import { Grid, Header, Icon, Dropdown } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
-const UserPanel = () => {
+const UserPanel = ({ currentUser }) => {
+    const [user, setUser] = useState(currentUser);
 
     const handleSignout = () => {
         firebase
@@ -11,10 +13,10 @@ const UserPanel = () => {
             .then(() => console.log("Signed out"));
     }
 
-    const dropdownOptions = [
+    const dropdownOptions = () => [
         {
-            key: 'signin',
-            text: <span>Signed in as <strong>User</strong></span>,
+            key: 'user',
+            text: <span>Signed in as <strong>{user.displayName}</strong></span>,
             disabled: true
         },
         {
@@ -41,12 +43,16 @@ const UserPanel = () => {
                 {/* User Dropdown */}
                 <Header style={{ padding: '0.25em'}} as="h4" inverted>
                     <Dropdown trigger={
-                        <span>User</span>
-                    } options={dropdownOptions} />
+                        <span>{user.displayName}</span>
+                    } options={dropdownOptions()} />
                 </Header>
             </Grid.Column>
         </Grid>
     )
 }
 
-export default UserPanel;
+const mapStateToProps = state => ({
+    currentUser: state.user.currentUser
+})
+
+export default connect(mapStateToProps)(UserPanel);
