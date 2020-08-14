@@ -1,15 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, Icon, Modal, Form, Input, Button } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
+import ChannelList from './ChannelList';
+
 const Channels = ({ currentUser }) => {
-    const [user, setUser] = useState(currentUser || {});
+    const [user] = useState(currentUser || {});
     const [channels, setChannels] = useState([]);
     const [modal, setModal] = useState(false);
     const [channelName, setChannelName] = useState('');
     const [channelDetails, setChannelDetails] = useState('');
 
     const channelsRef = firebase.database().ref('channels');
+
+    /*eslint-disable */
+    useEffect(() => {
+        let loadedChannels = [];
+        // Fired once a new channel added
+        channelsRef.on('child_added', snap => {
+            // Reset channels
+            setChannels([]);
+
+            // Update newest channels
+            loadedChannels.push(snap.val());
+            setChannels(loadedChannels);
+        })
+    }, []);
+    /*eslint-enable */
 
     const closeModal = () => {
         setModal(false);
@@ -67,6 +84,7 @@ const Channels = ({ currentUser }) => {
                 setChannelName('');
                 setChannelDetails('');
                 console.log('channel added');
+                setModal(false);
             }).catch(error => console.log(error));
     }
 
@@ -80,6 +98,7 @@ const Channels = ({ currentUser }) => {
                     ({ channels.length })
                     <Icon name="add" onClick={openModal} />
                 </Menu.Item>
+                <ChannelList channels={channels} />
             </Menu.Menu>
 
             {/* Add Channel Modal */}

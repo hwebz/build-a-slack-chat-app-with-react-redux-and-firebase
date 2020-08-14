@@ -3,7 +3,7 @@ import { Grid, Header, Icon, Dropdown, Image } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
 const UserPanel = ({ currentUser }) => {
-    const [user, setUser] = useState(currentUser || {});
+    const [user] = useState(currentUser || {});
 
     const handleSignout = () => {
         firebase
