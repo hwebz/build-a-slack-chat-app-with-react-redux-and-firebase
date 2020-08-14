@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
 import { Grid, Header, Icon, Dropdown, Image } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
 const UserPanel = ({ currentUser }) => {
-    const [user, setUser] = useState(currentUser);
+    const [user, setUser] = useState(currentUser || {});
 
     const handleSignout = () => {
         firebase
@@ -54,8 +53,4 @@ const UserPanel = ({ currentUser }) => {
     )
 }
 
-const mapStateToProps = state => ({
-    currentUser: state.user.currentUser
-})
-
-export default connect(mapStateToProps)(UserPanel);
+export default UserPanel;
