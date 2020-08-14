@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Grid, Header, Icon, Dropdown } from 'semantic-ui-react';
+import { Grid, Header, Icon, Dropdown, Image } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
 const UserPanel = ({ currentUser }) => {
@@ -43,7 +43,10 @@ const UserPanel = ({ currentUser }) => {
                 {/* User Dropdown */}
                 <Header style={{ padding: '0.25em'}} as="h4" inverted>
                     <Dropdown trigger={
-                        <span>{user.displayName}</span>
+                        <span>
+                            <Image src={user.photoURL} spaced="right" avatar />
+                            {user.displayName}
+                        </span>
                     } options={dropdownOptions()} />
                 </Header>
             </Grid.Column>
