@@ -18,13 +18,14 @@ const Channels = ({ currentUser }) => {
         let loadedChannels = [];
         // Fired once a new channel added
         channelsRef.on('child_added', snap => {
-            // Reset channels
-            setChannels([]);
-
             // Update newest channels
             loadedChannels.push(snap.val());
-            setChannels(loadedChannels);
-        })
+            setChannels([...loadedChannels]);
+        });
+
+        return function cleanup() {
+            channelsRef.off();
+        }
     }, []);
     /*eslint-enable */
 
@@ -87,7 +88,7 @@ const Channels = ({ currentUser }) => {
                 setModal(false);
             }).catch(error => console.log(error));
     }
-    
+
     return (
         <React.Fragment>
             <Menu.Menu style={{ paddingBottom: '2em' }}>
