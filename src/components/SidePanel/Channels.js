@@ -87,7 +87,7 @@ const Channels = ({ currentUser }) => {
                 setModal(false);
             }).catch(error => console.log(error));
     }
-
+    
     return (
         <React.Fragment>
             <Menu.Menu style={{ paddingBottom: '2em' }}>
