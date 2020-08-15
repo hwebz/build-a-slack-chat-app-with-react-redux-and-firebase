@@ -1,10 +1,14 @@
 import React from 'react';
 import { Segment, Comment } from 'semantic-ui-react';
+import firebase from '../../firebase';
 
 import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
 
-const Messages = () => {
+const Messages = ({ currentChannel, currentUser }) => {
+
+    const messagesRef = firebase.database().ref('messages');
+
     return (
         <React.Fragment>
             <MessagesHeader />
@@ -15,7 +19,11 @@ const Messages = () => {
                 </Comment.Group>
             </Segment>
 
-            <MessageForm />
+            <MessageForm
+                messagesRef={messagesRef}
+                currentChannel={currentChannel}
+                currentUser={currentUser}
+            />
         </React.Fragment>
     )
 }

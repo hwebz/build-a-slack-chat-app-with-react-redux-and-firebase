@@ -5,7 +5,7 @@ const ColorPanel = () => {
     return (
         <Sidebar
             as={Menu}
-            icon="labaled"
+            icon="labeled"
             inverted
             vertical
             visible
