@@ -9,6 +9,7 @@ import { setCurrentChannel, setPrivateChannel } from '../../actions';
 const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) => {
     const [users, setUsers] = useState([]);
     const [user] = useState(currentUser || {});
+    const [activeChannelID, setActiveChannelID] = useState('');
 
     const usersRef = firebase.database().ref('users');
     const connectedRef = firebase.database().ref('.info/connected');
@@ -87,6 +88,7 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
             name: usr.name
         };
 
+        setActiveChannelID(usr.uid);
         setCurrentChannel(channelData);
         setPrivateChannel(true);
     }
@@ -107,6 +109,7 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
             <UserList
                 users={users}
                 changeChannel={changeChannel}
+                activeChannelID={activeChannelID}
             />
         </Menu.Menu>
     )

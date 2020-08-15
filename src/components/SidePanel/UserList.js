@@ -1,7 +1,7 @@
 import React from 'react';
 import { Menu, Icon } from 'semantic-ui-react';
 
-const UserList = ({ users, changeChannel }) => {
+const UserList = ({ users, changeChannel, activeChannelID }) => {
 
     const isUserOnline = (user) => user.status === 'online';
 
@@ -9,6 +9,7 @@ const UserList = ({ users, changeChannel }) => {
         <Menu.Item
             key={user.uid}
             onClick={() => changeChannel(user)}
+            active={activeChannelID === user.uid}
         >
             <Icon
                 name="circle"
