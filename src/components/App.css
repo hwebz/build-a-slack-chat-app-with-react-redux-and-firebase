@@ -13,6 +13,12 @@ body,
     max-width: inherit !important;
 }
 
+.messages__progress {
+    height: calc(100vh - 305px);
+    overflow-y: scroll;
+    max-width: inherit !important;
+}
+
 /* MessageForm.js */
 .message__form {
     position: fixed !important;
@@ -31,4 +37,9 @@ body,
 
 .message__image {
     padding: 1em;
+}
+
+/* ProgressBar.js */
+.progress__bar {
+    margin: 0.3em 0 0 0 !important;
 }

@@ -4,8 +4,9 @@ import firebase from '../../firebase';
 import { Segment, Button, Input } from 'semantic-ui-react';
 
 import FileModal from './FileModal';
+import ProgressBar from './ProgressBar';
 
-const MessageForm = ({ messagesRef, currentChannel, currentUser }) => {
+const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVisible }) => {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -16,10 +17,12 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser }) => {
 
     const storageRef = firebase.storage().ref();
 
+    /*eslint-disable */
     useEffect(() => {
         if (uploadTask) {
             uploadTask.on('state_changed', snap => {
-                setPercentUploaded(Math.round(( snap.bytesTransferred / snap.totalBytes ) * 100));
+                const percentUploaded = Math.round(( snap.bytesTransferred / snap.totalBytes ) * 100);
+                setPercentUploaded(percentUploaded);
             }, error => {
                 console.log(error);
                 setErrors([
@@ -43,6 +46,11 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser }) => {
             })
         }
     }, [uploadTask]);
+
+    useEffect(() => {
+        isProgressBarVisible(percentUploaded, uploadState);
+    }, [percentUploaded, uploadState])
+    /*eslint-enable */
 
     const handleChange = e => {
         setMessage(e.target.value);
@@ -157,12 +165,16 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser }) => {
                     labelPosition="right"
                     icon="cloud upload"
                 />
-                <FileModal
-                    modal={modal}
-                    closeModal={closeModal}
-                    uploadFile={uploadFile}
-                />
             </Button.Group>
+            <FileModal
+                modal={modal}
+                closeModal={closeModal}
+                uploadFile={uploadFile}
+            />
+            <ProgressBar
+                uploadState={uploadState}
+                percentUploaded={percentUploaded}
+            />
         </Segment>
     )
 }

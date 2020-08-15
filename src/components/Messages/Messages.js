@@ -9,6 +9,7 @@ import MessageList from './MessageList';
 const Messages = ({ currentChannel, currentUser }) => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [progressBar, setProgressBar] = useState(false);
 
     const messagesRef = firebase.database().ref('messages');
 
@@ -31,12 +32,16 @@ const Messages = ({ currentChannel, currentUser }) => {
     }, [currentChannel]);
     /*eslint-enable */
 
+    const isProgressBarVisible = (percent, uploadState) => {
+        setProgressBar(uploadState == 'uploading' && percent > 0)
+    }
+
     return (
         <React.Fragment>
             <MessagesHeader />
 
             <Segment>
-                <Comment.Group className="messages">
+                <Comment.Group className={progressBar ? 'messages__progress' : 'messages'}>
                     {/* Messages */}
                     <MessageList
                         messages={messages}
@@ -49,6 +54,7 @@ const Messages = ({ currentChannel, currentUser }) => {
                 messagesRef={messagesRef}
                 currentChannel={currentChannel}
                 currentUser={currentUser}
+                isProgressBarVisible={isProgressBarVisible}
             />
         </React.Fragment>
     )
