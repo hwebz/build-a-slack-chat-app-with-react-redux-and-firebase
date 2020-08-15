@@ -29,6 +29,12 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
             })
         }
 
+        return () => {
+            usersRef.off();
+        }
+    }, [currentUser]);
+
+    useEffect(() => {
         connectedRef.on('value', snap => {
             if (snap.val() === true) {
                 const ref = presenceRef.child(user.uid);
@@ -45,6 +51,7 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
         presenceRef.on('child_added', snap => {
             if (currentUser.uid !== snap.key) {
                 // add status to user
+                addStatusToUser(snap.key, true);
             }
         });
 
@@ -56,21 +63,20 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
         });
 
         return () => {
-            usersRef.off();
             connectedRef.off();
             presenceRef.off();
         }
-    }, [currentUser]);
+    }, [users]);
     /*eslint-enable */
 
     const addStatusToUser = (userId, connected = true) => {
-        const updatedUsers = users.reduce((acc, user) => {
-            if (user.uid === userId) {
-                user['status'] = `${connected ? 'online' : 'offline'}`;
+        const updatedUsers = users.reduce((acc, usr) => {
+            if (usr.uid === userId) {
+                usr['status'] = `${connected ? 'online' : 'offline'}`;
             }
-            return acc.concat(user);
+            acc.push(usr);
+            return acc;
         }, []);
-
         setUsers([...updatedUsers]);
     }
 
