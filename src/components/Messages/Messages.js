@@ -6,23 +6,25 @@ import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
 import MessageList from './MessageList';
 
-const Messages = ({ currentChannel, currentUser }) => {
+const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
     const [channel] = useState(currentChannel || {});
     const [messages, setMessages] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
     const [progressBar, setProgressBar] = useState(false);
     const [numUniqueUsers, setNumUniqueUsers] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
+    const [privateChannel] = useState(isPrivateChannel || false);
 
     const messagesRef = firebase.database().ref('messages');
+    const privateMessagesRef = firebase.database().ref('privateMessages');
 
     /*eslint-disable */
     useEffect(() => {
         if (currentChannel && currentUser) {
             let loadedMessages = [];
-            messagesRef
+            getMessagesRef()
                 .child(currentChannel.id)
                 .on('child_added', snap => {
                     loadedMessages.push(snap.val());
@@ -34,6 +36,7 @@ const Messages = ({ currentChannel, currentUser }) => {
 
         return () => {
             messagesRef.off();
+            privateMessagesRef.off();
         }
     }, [currentChannel]);
 
@@ -55,7 +58,7 @@ const Messages = ({ currentChannel, currentUser }) => {
     /*eslint-enable */
 
     const isProgressBarVisible = (percent, uploadState) => {
-        setProgressBar(uploadState == 'uploading' && percent > 0)
+        setProgressBar(uploadState === 'uploading' && percent > 0)
     }
 
     const countUniqueUsers = (msgs) => {
@@ -71,6 +74,8 @@ const Messages = ({ currentChannel, currentUser }) => {
         setNumUniqueUsers(numberUniqueUsersStr);
     }
 
+    const getMessagesRef = () => privateChannel ? privateMessagesRef : messagesRef
+
     const handleSearchChange = e => {
         setSearchTerm(e.target.value);
         setSearchLoading(true);
@@ -79,27 +84,29 @@ const Messages = ({ currentChannel, currentUser }) => {
     return (
         <React.Fragment>
             <MessagesHeader
-                channelName={channel.name}
+                channelName={`${privateChannel ? `@` : `#`}${channel.name}`}
                 numUniqueUsers={numUniqueUsers}
                 handleSearchChange={handleSearchChange}
                 searchLoading={searchLoading}
+                isPrivateChannel={privateChannel}
             />
 
             <Segment>
                 <Comment.Group className={progressBar ? 'messages__progress' : 'messages'}>
                     {/* Messages */}
                     <MessageList
-                        messages={searchTerm.length == 0 ? messages : searchResults}
+                        messages={searchTerm.length === 0 ? messages : searchResults}
                         currentUser={currentUser}
                     />
                 </Comment.Group>
             </Segment>
 
             <MessageForm
-                messagesRef={messagesRef}
-                currentChannel={currentChannel}
+                messagesRef={getMessagesRef()}
+                currentChannel={channel}
                 currentUser={currentUser}
                 isProgressBarVisible={isProgressBarVisible}
+                isPrivateChannel={privateChannel}
             />
         </React.Fragment>
     )

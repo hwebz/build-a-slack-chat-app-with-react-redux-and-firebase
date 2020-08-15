@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Menu } from 'semantic-ui-react';
 
-import { setCurrentChannel } from '../../actions'
+import { setCurrentChannel, setPrivateChannel } from '../../actions'
 
-const ChannelList = ({ channels, currentChannel, setCurrentChannel }) => {
+const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateChannel }) => {
     const [activeChannelID, setActiveChannelID] = useState('');
 
     /*eslint-disable */
@@ -13,7 +13,8 @@ const ChannelList = ({ channels, currentChannel, setCurrentChannel }) => {
             const firstChannel = channels[0];
 
             setCurrentChannel(firstChannel);
-            setActiveChannelID(firstChannel.id)
+            setActiveChannelID(firstChannel.id);
+            setPrivateChannel(false);
         }
     }, [channels]);
     /*eslint-enable */
@@ -21,6 +22,7 @@ const ChannelList = ({ channels, currentChannel, setCurrentChannel }) => {
     const changeChannel = channel => {
         setCurrentChannel(channel);
         setActiveChannelID(channel.id)
+        setPrivateChannel(false);
     }
 
     return channels.map(channel => (
@@ -40,4 +42,4 @@ const mapStateToProps = state => ({
     currentChannel: state.channel.currentChannel
 })
 
-export default connect(mapStateToProps, { setCurrentChannel })(ChannelList);
+export default connect(mapStateToProps, { setCurrentChannel, setPrivateChannel })(ChannelList);

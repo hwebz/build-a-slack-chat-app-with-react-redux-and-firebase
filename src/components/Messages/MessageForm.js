@@ -6,7 +6,7 @@ import { Segment, Button, Input } from 'semantic-ui-react';
 import FileModal from './FileModal';
 import ProgressBar from './ProgressBar';
 
-const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVisible }) => {
+const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVisible, isPrivateChannel }) => {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -112,9 +112,11 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
         setModal(false);
     }
 
+    const getPath = () => isPrivateChannel ? `chat/private-${currentChannel.id}` : `chat/public`;
+
     const uploadFile = (file, metadata) => {
         console.log(file, metadata);
-        const filePath = `chat/public/${uuidv4()}.jpg`;
+        const filePath = `${getPath()}/${uuidv4()}.jpg`;
         
         setUploadState('uploading');
         setUploadTask(storageRef.child(filePath).put(file, metadata));
