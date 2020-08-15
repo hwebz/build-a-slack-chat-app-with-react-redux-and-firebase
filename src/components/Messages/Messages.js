@@ -12,6 +12,9 @@ const Messages = ({ currentChannel, currentUser }) => {
     const [loading, setLoading] = useState(false);
     const [progressBar, setProgressBar] = useState(false);
     const [numUniqueUsers, setNumUniqueUsers] = useState(0);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
 
     const messagesRef = firebase.database().ref('messages');
 
@@ -33,6 +36,22 @@ const Messages = ({ currentChannel, currentUser }) => {
             messagesRef.off();
         }
     }, [currentChannel]);
+
+    useEffect(() => {
+        const channelMessages = [...messages];
+        const regex = new RegExp(searchTerm, 'gi');
+        const results = channelMessages.reduce((acc, message) => {
+            if ((message.content && message.content.match(regex)) || message.user.name.match(regex)) {
+                acc.push(message);
+            }
+            return acc;
+        }, []);
+        setSearchResults(results);
+        // Fake loading
+        setTimeout(() => {
+            setSearchLoading(false);
+        }, 1000);
+    }, [searchTerm]);
     /*eslint-enable */
 
     const isProgressBarVisible = (percent, uploadState) => {
@@ -52,18 +71,25 @@ const Messages = ({ currentChannel, currentUser }) => {
         setNumUniqueUsers(numberUniqueUsersStr);
     }
 
+    const handleSearchChange = e => {
+        setSearchTerm(e.target.value);
+        setSearchLoading(true);
+    }
+
     return (
         <React.Fragment>
             <MessagesHeader
                 channelName={channel.name}
                 numUniqueUsers={numUniqueUsers}
+                handleSearchChange={handleSearchChange}
+                searchLoading={searchLoading}
             />
 
             <Segment>
                 <Comment.Group className={progressBar ? 'messages__progress' : 'messages'}>
                     {/* Messages */}
                     <MessageList
-                        messages={messages}
+                        messages={searchTerm.length == 0 ? messages : searchResults}
                         currentUser={currentUser}
                     />
                 </Comment.Group>
