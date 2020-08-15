@@ -164,6 +164,7 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
                     content="Upload Media"
                     labelPosition="right"
                     icon="cloud upload"
+                    disabled={uploadState === 'uploading'}
                 />
             </Button.Group>
             <FileModal
