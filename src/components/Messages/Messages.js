@@ -7,9 +7,11 @@ import MessageForm from './MessageForm';
 import MessageList from './MessageList';
 
 const Messages = ({ currentChannel, currentUser }) => {
+    const [channel] = useState(currentChannel || {});
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [progressBar, setProgressBar] = useState(false);
+    const [numUniqueUsers, setNumUniqueUsers] = useState(0);
 
     const messagesRef = firebase.database().ref('messages');
 
@@ -23,7 +25,8 @@ const Messages = ({ currentChannel, currentUser }) => {
                     loadedMessages.push(snap.val());
                     setMessages([...loadedMessages]);
                     setLoading(false);
-                })
+                    countUniqueUsers([...loadedMessages]);
+                });
         }
 
         return () => {
@@ -36,9 +39,25 @@ const Messages = ({ currentChannel, currentUser }) => {
         setProgressBar(uploadState == 'uploading' && percent > 0)
     }
 
+    const countUniqueUsers = (msgs) => {
+        const uniqueUsers = msgs.reduce((acc, message) => {
+            if (!acc.includes(message.user.name)) {
+                acc.push(message.user.name);
+            }
+            return acc;
+        }, []);
+
+        const numUniqueUsers = uniqueUsers.length;
+        const numberUniqueUsersStr = `${numUniqueUsers} user${numUniqueUsers > 1 ? 's' : ''}`;
+        setNumUniqueUsers(numberUniqueUsersStr);
+    }
+
     return (
         <React.Fragment>
-            <MessagesHeader />
+            <MessagesHeader
+                channelName={channel.name}
+                numUniqueUsers={numUniqueUsers}
+            />
 
             <Segment>
                 <Comment.Group className={progressBar ? 'messages__progress' : 'messages'}>
