@@ -21,6 +21,8 @@ const store = createStore(rootReducer, composeWithDevTools());
 const Root = ({ setUser, clearUser, isLoading }) => {
   const history = useHistory();
 
+  const presenceRef = firebase.database().ref('presence');
+
   /*eslint-disable */
   useEffect(() => {
     firebase.auth().onAuthStateChanged(user => {

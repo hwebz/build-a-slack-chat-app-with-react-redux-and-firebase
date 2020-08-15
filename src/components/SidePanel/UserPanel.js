@@ -2,14 +2,20 @@ import React, { useState } from 'react';
 import { Grid, Header, Icon, Dropdown, Image } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
-const UserPanel = ({ currentUser }) => {
-    const [user] = useState(currentUser || {});
+import { clearUser } from '../../actions'
+import { connect } from 'react-redux';
 
+const UserPanel = ({ currentUser, clearUser }) => {
+    const [user] = useState(currentUser || {});
+    
     const handleSignout = () => {
         firebase
             .auth()
             .signOut()
-            .then(() => console.log("Signed out"));
+            .then(() => {
+                console.log("Signed out");
+                clearUser();
+            });
     }
 
     const dropdownOptions = () => [
@@ -53,4 +59,4 @@ const UserPanel = ({ currentUser }) => {
     )
 }
 
-export default UserPanel;
+export default connect(null, { clearUser })(UserPanel);

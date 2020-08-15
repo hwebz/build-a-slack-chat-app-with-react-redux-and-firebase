@@ -36,32 +36,34 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
     }, [currentUser]);
 
     useEffect(() => {
-        connectedRef.on('value', snap => {
-            if (snap.val() === true) {
-                const ref = presenceRef.child(user.uid);
-                ref.set(true)
-                ref.onDisconnect()
-                    .remove(error => {
-                        if (error) {
-                            console.log(error);
-                        }
-                    })
-            }
-        });
-
-        presenceRef.on('child_added', snap => {
-            if (currentUser.uid !== snap.key) {
-                // add status to user
-                addStatusToUser(snap.key, true);
-            }
-        });
-
-        presenceRef.on('child_removed', snap => {
-            if (currentUser.uid !== snap.key) {
-                // add status to user
-                addStatusToUser(snap.key, false);
-            }
-        });
+        if (users.length > 0 && user) {
+            connectedRef.on('value', snap => {
+                if (snap.val() === true) {
+                    const ref = presenceRef.child(user.uid);
+                    ref.set(true)
+                    ref.onDisconnect()
+                        .remove(error => {
+                            if (error) {
+                                console.log(error);
+                            }
+                        })
+                }
+            });
+    
+            presenceRef.on('child_added', snap => {
+                if (currentUser.uid !== snap.key) {
+                    // add status to user
+                    addStatusToUser(snap.key, true);
+                }
+            });
+    
+            presenceRef.on('child_removed', snap => {
+                if (currentUser.uid !== snap.key) {
+                    // add status to user
+                    addStatusToUser(snap.key, false);
+                }
+            });
+        }
 
         return () => {
             connectedRef.off();
