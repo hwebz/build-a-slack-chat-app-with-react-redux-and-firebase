@@ -1,11 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import firebase from '../../firebase';
 import { Segment, Button, Input } from 'semantic-ui-react';
+
+import FileModal from './FileModal';
 
 const MessageForm = ({ messagesRef, currentChannel, currentUser }) => {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState([]);
+    const [modal, setModal] = useState(false);
+    const [uploadState, setUploadState] = useState('');
+    const [uploadTask, setUploadTask] = useState(null);
+    const [percentUploaded, setPercentUploaded] = useState(0);
+
+    const storageRef = firebase.storage().ref();
+
+    useEffect(() => {
+        if (uploadTask) {
+            uploadTask.on('state_changed', snap => {
+                setPercentUploaded(Math.round(( snap.bytesTransferred / snap.totalBytes ) * 100));
+            }, error => {
+                console.log(error);
+                setErrors([
+                    ...errors,
+                    error
+                ]);
+                setUploadState('');
+                setUploadTask(null);
+            }, () => {
+                uploadTask.snapshot.ref.getDownloadURL().then(downloadUrl => {
+                    sendFileMessage(downloadUrl, messagesRef, currentChannel.id);
+                }).catch(error => {
+                    console.log(error);
+                    setErrors([
+                        ...errors,
+                        error
+                    ]);
+                    setUploadState('');
+                    setUploadTask(null);
+                })
+            })
+        }
+    }, [uploadTask]);
 
     const handleChange = e => {
         setMessage(e.target.value);
@@ -40,18 +77,54 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser }) => {
         }
     }
 
-    const createMessage = () => {
+    const createMessage = (fileUrl = null) => {
         const msg = {
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             user: {
                 id: currentUser.uid,
                 name: currentUser.displayName,
                 avatar: currentUser.photoURL
-            },
-            content: message
+            }
+        }
+
+        if (fileUrl) {
+            msg['image'] = fileUrl;
+        } else {
+            msg['content'] = message;
         }
 
         return msg;
+    }
+
+    const openModal = () => {
+        setModal(true);
+    }
+
+    const closeModal = () => {
+        setModal(false);
+    }
+
+    const uploadFile = (file, metadata) => {
+        console.log(file, metadata);
+        const filePath = `chat/public/${uuidv4()}.jpg`;
+        
+        setUploadState('uploading');
+        setUploadTask(storageRef.child(filePath).put(file, metadata));
+    }
+
+    const sendFileMessage = (fileUrl, ref, pathToUpload) => {
+        ref.child(pathToUpload)
+            .push()
+            .set(createMessage(fileUrl))
+            .then(() => {
+                setUploadState('done');
+            }).catch(error => {
+                console.log(error);
+                setErrors([
+                    ...errors,
+                    error
+                ]);
+            });
     }
 
     return (
@@ -79,9 +152,15 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser }) => {
                 />
                 <Button
                     color="teal"
+                    onClick={openModal}
                     content="Upload Media"
                     labelPosition="right"
                     icon="cloud upload"
+                />
+                <FileModal
+                    modal={modal}
+                    closeModal={closeModal}
+                    uploadFile={uploadFile}
                 />
             </Button.Group>
         </Segment>
