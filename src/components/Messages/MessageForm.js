@@ -61,6 +61,7 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser }) => {
                 name="message"
                 icon="add"
                 iconPosition="left"
+                value={message}
                 onChange={handleChange}
                 style={{ marginBottom: '0.7em' }}
                 labelPosition="left"
@@ -74,6 +75,7 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser }) => {
                     labelPosition="left"
                     icon="edit"
                     onClick={sendMessage}
+                    disabled={loading}
                 />
                 <Button
                     color="teal"

@@ -1,13 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Segment, Comment } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
 import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
+import MessageList from './MessageList';
 
 const Messages = ({ currentChannel, currentUser }) => {
+    const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const messagesRef = firebase.database().ref('messages');
+
+    /*eslint-disable */
+    useEffect(() => {
+        if (currentChannel && currentUser) {
+            let loadedMessages = [];
+            messagesRef
+                .child(currentChannel.id)
+                .on('child_added', snap => {
+                    loadedMessages.push(snap.val());
+                    setMessages([...loadedMessages]);
+                    setLoading(false);
+                })
+        }
+
+        return () => {
+            messagesRef.off();
+        }
+    }, [currentChannel]);
+    /*eslint-enable */
 
     return (
         <React.Fragment>
@@ -16,6 +38,10 @@ const Messages = ({ currentChannel, currentUser }) => {
             <Segment>
                 <Comment.Group className="messages">
                     {/* Messages */}
+                    <MessageList
+                        messages={messages}
+                        currentUser={currentUser}
+                    />
                 </Comment.Group>
             </Segment>
 

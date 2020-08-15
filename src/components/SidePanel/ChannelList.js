@@ -7,6 +7,7 @@ import { setCurrentChannel } from '../../actions'
 const ChannelList = ({ channels, currentChannel, setCurrentChannel }) => {
     const [activeChannelID, setActiveChannelID] = useState('');
 
+    /*eslint-disable */
     useEffect(() => {
         if (!currentChannel && !!channels.length) {
             const firstChannel = channels[0];
@@ -14,7 +15,8 @@ const ChannelList = ({ channels, currentChannel, setCurrentChannel }) => {
             setCurrentChannel(firstChannel);
             setActiveChannelID(firstChannel.id)
         }
-    }, [channels])
+    }, [channels]);
+    /*eslint-enable */
 
     const changeChannel = channel => {
         setCurrentChannel(channel);

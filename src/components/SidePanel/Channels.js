@@ -23,7 +23,7 @@ const Channels = ({ currentUser }) => {
             setChannels([...loadedChannels]);
         });
 
-        return function cleanup() {
+        return () => {
             channelsRef.off();
         }
     }, []);
