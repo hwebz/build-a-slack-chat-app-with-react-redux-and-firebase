@@ -5,7 +5,7 @@ import firebase from '../../firebase';
 import StarredChannelList from './StarredChannelList';
 
 const Starred = ({ currentUser }) => {
-    const [user, setUser] = useState(currentUser || {})
+    const [user] = useState(currentUser || {})
     const [starredChannels, setStarredChannels] = useState([]);
 
     const usersRef = firebase.database().ref('users');

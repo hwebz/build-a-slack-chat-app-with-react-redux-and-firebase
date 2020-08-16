@@ -12,7 +12,7 @@ function App({ currentUser, currentChannel, isPrivateChannel, userPosts, primary
 	return (
 		<Grid columns="equal" className="app" style={{ background: secondaryColor }}>
 			<ColorPanel
-				key={currentUser && currentUser.uid}
+				key={currentUser && currentUser.name}
 				currentUser={currentUser}
 			/>
 			<SidePanel
@@ -31,7 +31,7 @@ function App({ currentUser, currentChannel, isPrivateChannel, userPosts, primary
 			</Grid.Column>
 			<Grid.Column width={4}>
 				<MetaPanel
-					key={currentChannel && currentChannel.id}
+					key={currentChannel && currentChannel.name}
 					isPrivateChannel={isPrivateChannel}
 					currentChannel={currentChannel}
 					userPosts={userPosts}

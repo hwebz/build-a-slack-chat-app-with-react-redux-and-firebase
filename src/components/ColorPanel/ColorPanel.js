@@ -24,6 +24,7 @@ const ColorPanel = ({ currentUser, setColors }) => {
 
     const usersRef = firebase.database().ref('users');
 
+    /*eslint-disable */
     useEffect(() => {
         if (currentUser) {
             let usrColors = [];
@@ -35,6 +36,7 @@ const ColorPanel = ({ currentUser, setColors }) => {
                 })
         }
     }, [currentUser]);
+    /*eslint-enable */
 
     const openModal = () =>  setModal(true);
 
