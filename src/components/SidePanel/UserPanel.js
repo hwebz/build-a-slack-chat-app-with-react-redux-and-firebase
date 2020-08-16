@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Header, Icon, Dropdown, Image, Modal, Input, Button } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
@@ -13,8 +13,39 @@ const UserPanel = ({ currentUser, clearUser, primaryColor }) => {
     const [previewImage, setPreviewImage] = useState('');
     const [croppedImage, setCroppedImage] = useState('');
     const [blob, setBlob] = useState('');
+    const [uploadedCroppedImage, setUploadedCroppedImage] = useState('');
 
     let avatarEditor = null;
+    const storageRef = firebase.storage().ref();
+    const userRef = firebase.auth().currentUser;
+    const usersRef = firebase.database().ref('users');
+    let metadata = {
+        contentType: 'image/jpeg'
+    };
+
+    /*eslint-disable */
+    useEffect(() => {
+        if (uploadedCroppedImage && currentUser) {
+            userRef
+                .updateProfile({
+                    photoURL: uploadedCroppedImage
+                })
+                .then(() => {
+                    console.log('PhotoURL updated');
+                    closeModal();
+                }).catch(error => console.log(error));
+
+            usersRef
+                .child(currentUser.uid)
+                .update({
+                    avatar: uploadedCroppedImage
+                })
+                .then(() => {
+                    console.log('User avatar updated');
+                }).catch(error => console.log(error));
+        }
+    }, [uploadedCroppedImage, currentUser]);
+    /*eslint-enable */
     
     const handleSignout = () => {
         firebase
@@ -66,6 +97,17 @@ const UserPanel = ({ currentUser, clearUser, primaryColor }) => {
                 setBlob(blob);
             })
         }
+    }
+
+    const uploadCroppedImage = () => {
+        storageRef
+            .child(`avatars/user-${userRef.uid}`)
+            .put(blob, metadata)
+            .then(snap => {
+                snap.ref.getDownloadURL().then(downloadURL => {
+                    setUploadedCroppedImage(downloadURL)
+                })
+            });
     }
 
     return (
@@ -124,6 +166,7 @@ const UserPanel = ({ currentUser, clearUser, primaryColor }) => {
                             <Button
                                 color="green"
                                 inverted
+                                onClick={uploadCroppedImage}
                             >
                                 <Icon name="save" /> Change Avatar
                             </Button>
