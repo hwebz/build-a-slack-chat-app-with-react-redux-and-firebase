@@ -31,6 +31,7 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
     const usersRef = firebase.database().ref('users');
     const typingRef = firebase.database().ref('typing');
     const connectedRef = firebase.database().ref('.info/connected');
+    let messagesEnd = null;
 
     /*eslint-disable */
     useEffect(() => {
@@ -142,11 +143,11 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
     }, [isChannelStarred])
 
     useEffect(() => {
-        if (messages.length > 0 || typingUsers.length > 0) {
-            let objDiv = document.getElementById("messages");
-            objDiv.scrollTop = objDiv.scrollHeight;
-        }
-    }, [messages, typingUsers]);
+        // Check all images loaded before scroll down to bottom of the page
+        Promise.all(Array.from(document.images).filter(img => !img.complete).map(img => new Promise(resolve => { img.onload = img.onerror = resolve; }))).then(() => {
+            if (messagesEnd) messagesEnd.scrollIntoView({ behavior: 'smooth' });
+        });
+    }, [messages]);
     /*eslint-enable */
 
     const addUserStarsListener = (userId, channelId) => {
@@ -227,6 +228,7 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
                         currentUser={currentUser}
                     />
                     <TypingUserList users={typingUsers} />
+                    <div ref={node => (messagesEnd = node)}></div>
                 </Comment.Group>
             </Segment>
 

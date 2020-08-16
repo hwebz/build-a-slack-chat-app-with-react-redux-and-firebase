@@ -13,9 +13,7 @@ const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateCh
         if (!currentChannel && !!channels.length) {
             const firstChannel = channels[0];
 
-            setCurrentChannel(firstChannel);
-            setActiveChannelID(firstChannel.id);
-            setPrivateChannel(false);
+            changeChannel(firstChannel);
         }
     }, [channels]);
     /*eslint-enable */
