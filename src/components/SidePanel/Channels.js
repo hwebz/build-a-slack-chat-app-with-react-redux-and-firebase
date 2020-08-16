@@ -14,6 +14,7 @@ const Channels = ({ currentUser, currentChannel }) => {
 
     const channelsRef = firebase.database().ref('channels');
     const messagesRef = firebase.database().ref('messages');
+    const typingRef = firebase.database().ref('typing');
 
     /*eslint-disable */
     useEffect(() => {
@@ -147,6 +148,13 @@ const Channels = ({ currentUser, currentChannel }) => {
         }
     }
 
+    const removeTyping = () => {
+        typingRef
+            .child(currentChannel.id)
+            .child(currentUser.uid)
+            .remove()
+    }
+
     return (
         <React.Fragment>
             <Menu.Menu className="menu">
@@ -159,8 +167,10 @@ const Channels = ({ currentUser, currentChannel }) => {
                 </Menu.Item>
                 <ChannelList
                     channels={channels}
+                    currentChannel={currentChannel}
                     notifications={notifications}
                     clearNotifications={clearNotifications}
+                    removeTyping={removeTyping}
                 />
             </Menu.Menu>
 

@@ -16,6 +16,7 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
     const [percentUploaded, setPercentUploaded] = useState(0);
 
     const storageRef = firebase.storage().ref();
+    const typingRef = firebase.database().ref('typing');
 
     /*eslint-disable */
     useEffect(() => {
@@ -67,6 +68,11 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
                     setLoading(false);
                     setMessage('');
                     setErrors([]);
+
+                    typingRef
+                        .child(currentChannel.id)
+                        .child(currentUser.uid)
+                        .remove()
                 }).catch(error => {
                     console.log(error);
                     setLoading(false);
@@ -137,6 +143,20 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
             });
     }
 
+    const handleKeyDown = () => {
+        if (message) {
+            typingRef
+                .child(currentChannel.id)
+                .child(currentUser.uid)
+                .set(currentUser.displayName)
+        } else {
+            typingRef
+                .child(currentChannel.id)
+                .child(currentUser.uid)
+                .remove()
+        }
+    }
+
     return (
         <Segment className="message__form">
             <Input
@@ -146,6 +166,7 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
                 iconPosition="left"
                 value={message}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 style={{ marginBottom: '0.7em' }}
                 labelPosition="left"
                 className={errors.some(error => error.message.includes('message')) ? 'error' : ''}

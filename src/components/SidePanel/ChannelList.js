@@ -5,7 +5,7 @@ import DisplayIf from '../Common/DisplayIf';
 
 import { setCurrentChannel, setPrivateChannel } from '../../actions'
 
-const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateChannel, notifications, clearNotifications }) => {
+const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateChannel, notifications, clearNotifications, removeTyping }) => {
     const [activeChannelID, setActiveChannelID] = useState('');
 
     /*eslint-disable */
@@ -25,6 +25,7 @@ const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateCh
         setActiveChannelID(channel.id)
         setPrivateChannel(false);
         clearNotifications();
+        removeTyping={removeTyping}
     }
 
     const getNotificationCount = channel => {
@@ -55,8 +56,4 @@ const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateCh
     ))
 }
 
-const mapStateToProps = state => ({
-    currentChannel: state.channel.currentChannel
-})
-
-export default connect(mapStateToProps, { setCurrentChannel, setPrivateChannel })(ChannelList);
+export default connect(null, { setCurrentChannel, setPrivateChannel })(ChannelList);
