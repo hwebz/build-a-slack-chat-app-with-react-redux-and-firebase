@@ -143,7 +143,7 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
             });
     }
 
-    const handleKeyDown = () => {
+    const handleKeyUp = () => {
         if (message) {
             typingRef
                 .child(currentChannel.id)
@@ -166,7 +166,7 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
                 iconPosition="left"
                 value={message}
                 onChange={handleChange}
-                onKeyDown={handleKeyDown}
+                onKeyUp={handleKeyUp}
                 style={{ marginBottom: '0.7em' }}
                 labelPosition="left"
                 className={errors.some(error => error.message.includes('message')) ? 'error' : ''}

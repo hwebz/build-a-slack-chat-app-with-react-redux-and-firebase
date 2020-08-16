@@ -6,7 +6,7 @@ import firebase from '../../firebase';
 import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
 import MessageList from './MessageList';
-import Typing from './Typing';
+import TypingUserList from './TypingUserList';
 
 import { setUserPosts } from '../../actions'
 
@@ -24,14 +24,18 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
     const [searchResults, setSearchResults] = useState([]);
     const [privateChannel] = useState(isPrivateChannel || false);
     const [isChannelStarred, setIsChannelStarred] = useState('');
+    const [typingUsers, setTypingUsers] = useState([]);
 
     const messagesRef = firebase.database().ref('messages');
     const privateMessagesRef = firebase.database().ref('privateMessages');
     const usersRef = firebase.database().ref('users');
+    const typingRef = firebase.database().ref('typing');
+    const connectedRef = firebase.database().ref('.info/connected');
 
     /*eslint-disable */
     useEffect(() => {
         if (currentChannel && currentUser) {
+            // message listener
             let loadedMessages = [];
             getMessagesRef()
                 .child(currentChannel.id)
@@ -42,6 +46,41 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
                     countUniqueUsers([...loadedMessages]);
                     countUserPosts(loadedMessages);
                 });
+
+            // typing listeners
+            let typingUsrs = [];
+            typingRef
+                .child(currentChannel.id)
+                .on('child_added', snap => {
+                    if (snap.key !== currentUser.uid) {
+                        typingUsrs = [
+                            ...typingUsrs,
+                            {
+                                id: snap.key,
+                                name: snap.val()
+                            }
+                        ];
+                        setTypingUsers([...typingUsrs])
+                    }
+                });
+
+            typingRef
+                .child(currentChannel.id)
+                .on('child_removed', snap => {
+                    typingUsrs = typingUsrs.filter(usr => usr.id !== snap.key)
+                    setTypingUsers([...typingUsrs]);
+                })
+
+            connectedRef
+                .on('value', snap => {
+                    if (!!snap.val()) {
+                        typingRef
+                            .child(currentChannel.id)
+                            .child(currentUser.uid)
+                            .onDisconnect()
+                            .remove(error => console.log(error));
+                    }
+                })
         }
 
         return () => {
@@ -101,6 +140,13 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
             addUserStarsListener(currentUser.uid, currentChannel.id);
         }
     }, [isChannelStarred])
+
+    useEffect(() => {
+        if (messages.length > 0 || typingUsers.length > 0) {
+            let objDiv = document.getElementById("messages");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+    }, [messages, typingUsers]);
     /*eslint-enable */
 
     const addUserStarsListener = (userId, channelId) => {
@@ -174,16 +220,13 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
             />
 
             <Segment>
-                <Comment.Group className={progressBar ? 'messages__progress' : 'messages'}>
+                <Comment.Group id="messages" className={progressBar ? 'messages__progress' : 'messages'}>
                     {/* Messages */}
                     <MessageList
                         messages={searchTerm.length === 0 ? messages : searchResults}
                         currentUser={currentUser}
                     />
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <span className="user__typing">hwebz is typing</span>
-                        <Typing />
-                    </div>
+                    <TypingUserList users={typingUsers} />
                 </Comment.Group>
             </Segment>
 

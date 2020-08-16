@@ -27,8 +27,7 @@ const Starred = ({ currentUser }) => {
             .child('starred')
             .on('child_removed', snap => {
                 console.log(starredChannels)
-                const channelToRemove = { id: snap.key, ...snap.val() };
-                loadedChannels = loadedChannels.filter(channel => channel.id !== channelToRemove.id);
+                loadedChannels = loadedChannels.filter(channel => channel.id !== snap.key);
                 setStarredChannels([...loadedChannels]);
             })
 

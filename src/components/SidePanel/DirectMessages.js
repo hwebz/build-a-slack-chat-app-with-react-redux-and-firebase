@@ -58,6 +58,7 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
             });
     
             presenceRef.on('child_removed', snap => {
+                console.log(snap);
                 if (currentUser.uid !== snap.key) {
                     // add status to user
                     addStatusToUser(snap.key, false);
