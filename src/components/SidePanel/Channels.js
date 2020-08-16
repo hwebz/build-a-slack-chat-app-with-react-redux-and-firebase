@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Icon, Modal, Form, Input, Button, Progress } from 'semantic-ui-react';
+import { Menu, Icon, Modal, Form, Input, Button } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
 import ChannelList from './ChannelList';
