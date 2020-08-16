@@ -7,8 +7,10 @@ import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
 import MessageList from './MessageList';
 import TypingUserList from './TypingUserList';
+import Skeleton from './Skeleton';
 
 import { setUserPosts } from '../../actions'
+import DisplayIf from '../Common/DisplayIf';
 
 const STARRED_YES = 'STARRED_YES';
 const STARRED_NO = 'STARRED_NO';
@@ -16,7 +18,7 @@ const STARRED_NO = 'STARRED_NO';
 const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts }) => {
     const [channel] = useState(currentChannel || {});
     const [messages, setMessages] = useState([]);
-    const [, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [progressBar, setProgressBar] = useState(false);
     const [numUniqueUsers, setNumUniqueUsers] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
@@ -223,6 +225,11 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
             <Segment>
                 <Comment.Group id="messages" className={progressBar ? 'messages__progress' : 'messages'}>
                     {/* Messages */}
+                    <DisplayIf condition={loading}>
+                        {[...Array(12)].map((_, i) => (
+                            <Skeleton key={i} />
+                        ))}
+                    </DisplayIf>
                     <MessageList
                         messages={searchTerm.length === 0 ? messages : searchResults}
                         currentUser={currentUser}
