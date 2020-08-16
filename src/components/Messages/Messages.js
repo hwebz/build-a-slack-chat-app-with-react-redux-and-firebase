@@ -6,6 +6,7 @@ import firebase from '../../firebase';
 import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
 import MessageList from './MessageList';
+import Typing from './Typing';
 
 import { setUserPosts } from '../../actions'
 
@@ -179,6 +180,10 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
                         messages={searchTerm.length === 0 ? messages : searchResults}
                         currentUser={currentUser}
                     />
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <span className="user__typing">hwebz is typing</span>
+                        <Typing />
+                    </div>
                 </Comment.Group>
             </Segment>
 
