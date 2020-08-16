@@ -2,7 +2,7 @@ import React from 'react';
 import { Header, Segment, Input, Icon } from 'semantic-ui-react';
 import DisplayIf from '../Common/DisplayIf';
 
-const MessagesHeader = ({ channelName, numUniqueUsers, handleSearchChange, searchLoading, isPrivateChannel }) => {
+const MessagesHeader = ({ channelName, numUniqueUsers, handleSearchChange, searchLoading, isPrivateChannel, isChannelStarred, handleStar }) => {
     return (
         <Segment clearing>
             {/* Channel Title */}
@@ -10,7 +10,11 @@ const MessagesHeader = ({ channelName, numUniqueUsers, handleSearchChange, searc
                 <span>
                     { channelName }
                     <DisplayIf condition={!isPrivateChannel}>
-                        <Icon name="star outline" color="black" />
+                        <Icon
+                            name={isChannelStarred ? 'star' : 'star outline'}
+                            color={isChannelStarred ? 'yellow': 'black'}
+                            onClick={handleStar}
+                        />
                     </DisplayIf>
                 </span>
                 <Header.Subheader>{numUniqueUsers}</Header.Subheader>

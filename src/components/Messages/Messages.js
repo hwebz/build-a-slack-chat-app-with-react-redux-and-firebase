@@ -6,6 +6,9 @@ import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
 import MessageList from './MessageList';
 
+const STARRED_YES = 'STARRED_YES';
+const STARRED_NO = 'STARRED_NO';
+
 const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
     const [channel] = useState(currentChannel || {});
     const [messages, setMessages] = useState([]);
@@ -16,9 +19,11 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [privateChannel] = useState(isPrivateChannel || false);
+    const [isChannelStarred, setIsChannelStarred] = useState('');
 
     const messagesRef = firebase.database().ref('messages');
     const privateMessagesRef = firebase.database().ref('privateMessages');
+    const usersRef = firebase.database().ref('users');
 
     /*eslint-disable */
     useEffect(() => {
@@ -55,7 +60,57 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
             setSearchLoading(false);
         }, 1000);
     }, [searchTerm]);
+
+    useEffect(() => {
+        if (currentUser && currentChannel) {
+            if (isChannelStarred) {
+                const { id, name, details, createdBy } = currentChannel;
+                switch (isChannelStarred) {
+                    case STARRED_YES:
+                        usersRef
+                            .child(`${currentUser.uid}/starred`)
+                            .update({
+                                [id]: {
+                                    name,
+                                    details,
+                                    createdBy: {
+                                        name: createdBy.name,
+                                        avatar: createdBy.avatar
+                                    }
+                                }
+                            });
+                        break;
+                    case STARRED_NO:
+                        usersRef
+                            .child(`${currentUser.uid}/starred`)
+                            .child(id)
+                            .remove(error => {
+                                if (error) {
+                                    console.log(error);
+                                }
+                            })
+                        break;
+                    default:
+                }
+            }
+            addUserStarsListener(currentUser.uid, currentChannel.id);
+        }
+    }, [isChannelStarred])
     /*eslint-enable */
+
+    const addUserStarsListener = (userId, channelId) => {
+        usersRef
+            .child(userId)
+            .child('starred')
+            .once('value')
+            .then(data => {
+                if (data.val() !== null) {
+                    const channelIds = Object.keys(data.val());
+                    const prevStarred = channelIds.includes(channelId);
+                    setIsChannelStarred(prevStarred ? STARRED_YES : '');
+                }
+            })
+    }
 
     const isProgressBarVisible = (percent, uploadState) => {
         setProgressBar(uploadState === 'uploading' && percent > 0)
@@ -81,6 +136,10 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
         setSearchLoading(true);
     }
 
+    const handleStar = () => {
+        setIsChannelStarred(isChannelStarred === STARRED_YES ? STARRED_NO : STARRED_YES);
+    }
+
     return (
         <React.Fragment>
             <MessagesHeader
@@ -89,6 +148,8 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
                 handleSearchChange={handleSearchChange}
                 searchLoading={searchLoading}
                 isPrivateChannel={privateChannel}
+                handleStar={handleStar}
+                isChannelStarred={isChannelStarred}
             />
 
             <Segment>
