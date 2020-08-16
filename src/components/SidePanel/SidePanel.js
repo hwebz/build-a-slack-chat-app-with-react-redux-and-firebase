@@ -15,7 +15,7 @@ const SidePanel = ({ currentUser, currentChannel }) => {
             style={{ background: '#4c3c4c', fontSize: '1.2rem' }}
         >
             <UserPanel currentUser={currentUser} />
-            <Starred starredChannels={[]} />
+            <Starred currentUser={currentUser} />
             <Channels currentUser={currentUser} currentChannel={currentChannel} />
             <DirectMessages currentUser={currentUser} />
         </Menu>
