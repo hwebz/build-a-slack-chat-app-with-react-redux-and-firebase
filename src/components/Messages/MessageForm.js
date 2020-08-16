@@ -148,7 +148,12 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
             });
     }
 
-    const handleKeyUp = () => {
+    const handleKeyUp = e => {
+        // if (e.ctrlKey && e.keyCode === 13) { // Ctrl + Enter
+        if (e.keyCode === 13) {
+            sendMessage();
+        }
+
         if (message) {
             typingRef
                 .child(currentChannel.id)
