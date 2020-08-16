@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Menu } from 'semantic-ui-react';
+import { Menu, Label } from 'semantic-ui-react';
+import DisplayIf from '../Common/DisplayIf';
 
 import { setCurrentChannel, setPrivateChannel } from '../../actions'
 
-const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateChannel }) => {
+const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateChannel, notifications, clearNotifications }) => {
     const [activeChannelID, setActiveChannelID] = useState('');
 
     /*eslint-disable */
@@ -23,6 +24,19 @@ const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateCh
         setCurrentChannel(channel);
         setActiveChannelID(channel.id)
         setPrivateChannel(false);
+        clearNotifications();
+    }
+
+    const getNotificationCount = channel => {
+        let count = 0;
+
+        notifications.forEach(n => {
+            if (n.id === channel.id) {
+                count = n.count;
+            }
+        });
+
+        return count;
     }
 
     return channels.map(channel => (
@@ -33,6 +47,9 @@ const ChannelList = ({ channels, currentChannel, setCurrentChannel, setPrivateCh
             style={{ opacity: 0.7 }}
             active={activeChannelID === channel.id}
         >
+            <DisplayIf condition={getNotificationCount(channel)}>
+                <Label color="red">{getNotificationCount(channel)}</Label>
+            </DisplayIf>
             # {channel.name}
         </Menu.Item>
     ))

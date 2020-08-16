@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Icon, Modal, Form, Input, Button } from 'semantic-ui-react';
+import { Menu, Icon, Modal, Form, Input, Button, Progress } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
 import ChannelList from './ChannelList';
 
-const Channels = ({ currentUser }) => {
+const Channels = ({ currentUser, currentChannel }) => {
     const [user] = useState(currentUser || {});
     const [channels, setChannels] = useState([]);
     const [modal, setModal] = useState(false);
     const [channelName, setChannelName] = useState('');
     const [channelDetails, setChannelDetails] = useState('');
+    const [notifications, setNotifications] = useState([]);
 
     const channelsRef = firebase.database().ref('channels');
+    const messagesRef = firebase.database().ref('messages');
 
     /*eslint-disable */
     useEffect(() => {
@@ -27,7 +29,52 @@ const Channels = ({ currentUser }) => {
             channelsRef.off();
         }
     }, []);
+
+    useEffect(() => {
+        if (currentChannel) {
+            channelsRef.on('child_added', snap => {
+                addNotificationListener(snap.key);
+            })
+        }
+
+        
+    }, [currentChannel]);
     /*eslint-enable */
+
+    const addNotificationListener = channelId => {
+        messagesRef
+            .child(channelId)
+            .on('value', snap => {
+                // Continuous watch the changes for all selected channels
+                console.log(currentChannel.name)
+                handleNotifications(channelId, currentChannel.id, notifications, snap);
+            })
+    }
+
+    const handleNotifications = (channelId, currentChannelId, ns, snap) => {
+        let lastTotal = 0;
+        let index = ns.findIndex(n => n.id === channelId);
+
+        if (index !== -1) {
+            if (channelId !== currentChannelId) {
+                lastTotal = ns[index].total;
+                if (snap.numChildren() - lastTotal > 0) {
+                    ns[index].count = snap.numChildren() - lastTotal;
+                }
+            } else {
+                ns[index].count = 0;
+            }
+            ns[index].lastKnownTotal = snap.numChildren();
+        } else {
+            ns.push({
+                id: channelId,
+                total: snap.numChildren(),
+                lastKnownTotal: snap.numChildren(),
+                count: 0
+            })
+        }
+        setNotifications([...ns]);
+    }
 
     const closeModal = () => {
         setModal(false);
@@ -89,6 +136,17 @@ const Channels = ({ currentUser }) => {
             }).catch(error => console.log(error));
     }
 
+    const clearNotifications = () => {
+        let index = notifications.findIndex(n => n.id === currentChannel.id);
+
+        if (index !== -1) {
+            let updatedNotifications = [...notifications];
+            updatedNotifications[index].total = notifications[index].lastKnownTotal;
+            updatedNotifications[index].count = 0;
+            setNotifications(updatedNotifications);
+        }
+    }
+
     return (
         <React.Fragment>
             <Menu.Menu className="menu">
@@ -99,7 +157,11 @@ const Channels = ({ currentUser }) => {
                     ({ channels.length })
                     <Icon name="add" onClick={openModal} />
                 </Menu.Item>
-                <ChannelList channels={channels} />
+                <ChannelList
+                    channels={channels}
+                    notifications={notifications}
+                    clearNotifications={clearNotifications}
+                />
             </Menu.Menu>
 
             {/* Add Channel Modal */}

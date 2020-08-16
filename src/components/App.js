@@ -15,6 +15,7 @@ function App({ currentUser, currentChannel, isPrivateChannel }) {
 			<SidePanel
 				key={currentUser && currentUser.uid}
 				currentUser={currentUser}
+				currentChannel={currentChannel}
 			/>
 			<Grid.Column style={{ marginLeft: 320}}>
 				<Messages
