@@ -1,15 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Segment, Header, Accordion, Icon, Image } from 'semantic-ui-react';
+import UserList from './UserList';
 
-const MetaPanel = ({ currentChannel, isPrivateChannel }) => {
+const MetaPanel = ({ currentChannel, isPrivateChannel, userPosts }) => {
     const [channel] = useState(currentChannel || {})
     const [activeIndex, setActiveIndex] = useState(0);
+    const [users, setUsers] = useState(userPosts || []);
 
     const setIndex = (e, titleProps) => {
         const { index } = titleProps;
         const newIndex = activeIndex === index ? -1 : index;
         setActiveIndex(newIndex);
     }
+
+    /*eslint-disable */
+    useEffect(() => {
+        if (userPosts) {
+            const usrs = Object.entries(userPosts)
+            .sort((a, b) => b[1] - a[1])
+            .map(([key, value], i) => {
+                return {
+                    name: key,
+                    ...value
+                }
+            })
+
+            setUsers(usrs);
+        }
+    }, [userPosts]);
+    /*eslint-enable */
 
     return !isPrivateChannel && (
         <Segment loading={!Object.keys(channel).length}>
@@ -40,7 +59,7 @@ const MetaPanel = ({ currentChannel, isPrivateChannel }) => {
                     Top Posters
                 </Accordion.Title>
                 <Accordion.Content active={activeIndex === 1}>
-                    posters
+                    <UserList users={users} />
                 </Accordion.Content>
 
                 <Accordion.Title

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 import { Segment, Comment } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
@@ -6,10 +7,12 @@ import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
 import MessageList from './MessageList';
 
+import { setUserPosts } from '../../actions'
+
 const STARRED_YES = 'STARRED_YES';
 const STARRED_NO = 'STARRED_NO';
 
-const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
+const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts }) => {
     const [channel] = useState(currentChannel || {});
     const [messages, setMessages] = useState([]);
     const [, setLoading] = useState(false);
@@ -36,6 +39,7 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
                     setMessages([...loadedMessages]);
                     setLoading(false);
                     countUniqueUsers([...loadedMessages]);
+                    countUserPosts(loadedMessages);
                 });
         }
 
@@ -116,7 +120,7 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
         setProgressBar(uploadState === 'uploading' && percent > 0)
     }
 
-    const countUniqueUsers = (msgs) => {
+    const countUniqueUsers = msgs => {
         const uniqueUsers = msgs.reduce((acc, message) => {
             if (!acc.includes(message.user.name)) {
                 acc.push(message.user.name);
@@ -127,6 +131,22 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
         const numUniqueUsers = uniqueUsers.length;
         const numberUniqueUsersStr = `${numUniqueUsers} user${numUniqueUsers > 1 ? 's' : ''}`;
         setNumUniqueUsers(numberUniqueUsersStr);
+    }
+
+    const countUserPosts = msgs => {
+        let userPosts = msgs.reduce((acc, msg) => {
+            if (msg.user.name in acc) {
+                acc[msg.user.name].count += 1;
+            } else {
+                acc[msg.user.name] = {
+                    avatar: msg.user.avatar,
+                    count: 1
+                }
+            }
+            return acc;
+        }, {});
+
+        setUserPosts(userPosts)
     }
 
     const getMessagesRef = () => privateChannel ? privateMessagesRef : messagesRef
@@ -173,4 +193,4 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel }) => {
     )
 }
 
-export default Messages;
+export default connect(null, { setUserPosts })(Messages);
