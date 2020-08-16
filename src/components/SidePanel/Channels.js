@@ -25,10 +25,6 @@ const Channels = ({ currentUser, currentChannel }) => {
             loadedChannels.push(snap.val());
             setChannels([...loadedChannels]);
         });
-
-        return () => {
-            channelsRef.off();
-        }
     }, []);
 
     useEffect(() => {
@@ -37,9 +33,15 @@ const Channels = ({ currentUser, currentChannel }) => {
                 addNotificationListener(snap.key);
             })
         }
-
-        
     }, [currentChannel]);
+
+    // Unmount
+    useEffect(() => {
+        return () => {
+            messagesRef.off();
+            typingRef.off();
+        }
+    });
     /*eslint-enable */
 
     const addNotificationListener = channelId => {

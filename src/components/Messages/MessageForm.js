@@ -56,6 +56,14 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
     useEffect(() => {
         isProgressBarVisible(percentUploaded, uploadState);
     }, [percentUploaded, uploadState])
+
+    // Unmount
+    useEffect(() => {
+        return () => {
+            setUploadTask(null);
+            typingRef.off();
+        }
+    });
     /*eslint-enable */
 
     const handleChange = e => {

@@ -36,6 +36,13 @@ const ColorPanel = ({ currentUser, setColors }) => {
                 })
         }
     }, [currentUser]);
+
+    // Unmount
+    useEffect(() => {
+        return () => {
+            usersRef.off();
+        }
+    });
     /*eslint-enable */
 
     const openModal = () =>  setModal(true);

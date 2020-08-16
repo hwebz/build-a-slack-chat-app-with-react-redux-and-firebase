@@ -85,11 +85,6 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
                     }
                 })
         }
-
-        return () => {
-            messagesRef.off();
-            privateMessagesRef.off();
-        }
     }, [currentChannel]);
 
     useEffect(() => {
@@ -150,6 +145,17 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
             if (messagesEnd) messagesEnd.scrollIntoView({ behavior: 'smooth' });
         });
     }, [messages]);
+
+    // Unmount
+    useEffect(() => {
+        return () => {
+            messagesRef.off();
+            privateMessagesRef.off();
+            usersRef.off();
+            typingRef.off();
+            connectedRef.off();
+        }
+    });
     /*eslint-enable */
 
     const addUserStarsListener = (userId, channelId) => {

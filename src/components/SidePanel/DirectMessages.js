@@ -29,10 +29,6 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
                 }
             })
         }
-
-        return () => {
-            usersRef.off();
-        }
     }, [currentUser]);
 
     useEffect(() => {
@@ -65,12 +61,16 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
                 }
             });
         }
+    }, [users]);
 
+    // Unmount
+    useEffect(() => {
         return () => {
+            usersRef.off();
             connectedRef.off();
             presenceRef.off();
         }
-    }, [users]);
+    });
     /*eslint-enable */
 
     const addStatusToUser = (userId, connected = true) => {

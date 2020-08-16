@@ -30,15 +30,14 @@ const Starred = ({ currentUser }) => {
                 loadedChannels = loadedChannels.filter(channel => channel.id !== snap.key);
                 setStarredChannels([...loadedChannels]);
             })
+    }, []);
 
+    // Unmount
+    useEffect(() => {
         return () => {
             usersRef.off();
         }
-    }, []);
-
-    useEffect(() => {
-        // console.log(starredChannels);
-    }, [starredChannels]);
+    });
     /*eslint-enable */
 
     return (

@@ -45,6 +45,13 @@ const UserPanel = ({ currentUser, clearUser, primaryColor }) => {
                 }).catch(error => console.log(error));
         }
     }, [uploadedCroppedImage, currentUser]);
+
+    // Unmount
+    useEffect(() => {
+        return () => {
+            usersRef.off();
+        }
+    });
     /*eslint-enable */
     
     const handleSignout = () => {

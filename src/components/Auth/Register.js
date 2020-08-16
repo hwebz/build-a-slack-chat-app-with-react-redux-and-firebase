@@ -16,6 +16,15 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
 
     const usersRef = firebase.database().ref('users');
+
+    // Unmount
+    /*eslint-disable */
+    useEffect(() => {
+        return () => {
+            usersRef.off();
+        }
+    });
+    /*eslint-enable */
     
     const handleChange = e => {
         const {name, value} = e.target;
