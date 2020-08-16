@@ -5,7 +5,7 @@ import firebase from '../../firebase';
 import { clearUser } from '../../actions'
 import { connect } from 'react-redux';
 
-const UserPanel = ({ currentUser, clearUser }) => {
+const UserPanel = ({ currentUser, clearUser, primaryColor }) => {
     const [user] = useState(currentUser || {});
     
     const handleSignout = () => {
@@ -35,7 +35,7 @@ const UserPanel = ({ currentUser, clearUser }) => {
     ]
     
     return (
-        <Grid style={{ background: '#4c3c4c' }}>
+        <Grid style={{ background: primaryColor }}>
             <Grid.Column>
                 <Grid.Row style={{ padding: '1.2em', margin: 0 }}>
                     {/* App Header */}
