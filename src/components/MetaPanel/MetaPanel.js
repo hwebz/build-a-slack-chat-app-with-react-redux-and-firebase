@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Segment, Header, Accordion, Icon } from 'semantic-ui-react';
+import { Segment, Header, Accordion, Icon, Image } from 'semantic-ui-react';
 
-const MetaPanel = ({ isPrivateChannel }) => {
+const MetaPanel = ({ currentChannel, isPrivateChannel }) => {
+    const [channel] = useState(currentChannel || {})
     const [activeIndex, setActiveIndex] = useState(0);
 
     const setIndex = (e, titleProps) => {
@@ -11,7 +12,7 @@ const MetaPanel = ({ isPrivateChannel }) => {
     }
 
     return !isPrivateChannel && (
-        <Segment>
+        <Segment loading={!Object.keys(channel).length}>
             <Header as="h3" attached="top">
                 About # Channel
             </Header>
@@ -26,7 +27,7 @@ const MetaPanel = ({ isPrivateChannel }) => {
                     Channel Details
                 </Accordion.Title>
                 <Accordion.Content active={activeIndex === 0}>
-                    details
+                    {channel.details}
                 </Accordion.Content>
 
                 <Accordion.Title
@@ -52,7 +53,10 @@ const MetaPanel = ({ isPrivateChannel }) => {
                     Created By
                 </Accordion.Title>
                 <Accordion.Content active={activeIndex === 2}>
-                    author
+                    <Header as="h3">
+                        <Image circular src={channel.createdBy ? channel.createdBy.avatar : ''} />
+                        {channel.createdBy ? channel.createdBy.name : ''}
+                    </Header>
                 </Accordion.Content>
             </Accordion>
         </Segment>
