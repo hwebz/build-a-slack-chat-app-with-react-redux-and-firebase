@@ -39,9 +39,11 @@ const Channels = ({ currentUser, currentChannel }) => {
     useEffect(() => {
         return () => {
             messagesRef.off();
-            typingRef.off();
+            if (currentChannel && currentUser) {
+                typingRef.child(`${currentChannel.id}/${currentUser.uid}`).off();
+            }
         }
-    });
+    }, [currentChannel, currentUser]);
     /*eslint-enable */
 
     const addNotificationListener = channelId => {

@@ -33,11 +33,13 @@ const Starred = ({ currentUser }) => {
     }, []);
 
     // Unmount
-    useEffect(() => {
+    useState(() => {
         return () => {
-            usersRef.off();
+            if (currentUser) {
+                usersRef.child(`${currentUser.uid}/starred`).off();
+            }
         }
-    });
+    }, [currentUser]);
     /*eslint-enable */
 
     return (

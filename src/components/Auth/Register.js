@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Grid, Header, Icon, Form, Segment, Button, Message} from 'semantic-ui-react';
 import md5 from 'md5';
@@ -11,6 +11,7 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
+    const [registeredUser, setRegisteredUser] = useState(null);
     
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -21,9 +22,11 @@ const Register = () => {
     /*eslint-disable */
     useEffect(() => {
         return () => {
-            usersRef.off();
+            if (registeredUser) {
+                usersRef.child(registeredUser.uid).off();
+            }
         }
-    });
+    }, [registeredUser]);
     /*eslint-enable */
     
     const handleChange = e => {
@@ -80,6 +83,7 @@ const Register = () => {
                 .createUserWithEmailAndPassword(email, password)
                 .then(createdUser => {
                     console.log(createdUser);
+                    setRegisteredUser(createdUser.user);
                     createdUser.user.updateProfile({
                         displayName: username,
                         photoURL: `https://www.gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon&f=y`

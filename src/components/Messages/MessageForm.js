@@ -61,9 +61,11 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
     useEffect(() => {
         return () => {
             setUploadTask(null);
-            typingRef.off();
+            if (currentChannel && currentUser) {
+                typingRef.child(`${currentChannel.id}/${currentUser.uid}`).off();
+            }
         }
-    });
+    }, [currentChannel, currentUser]);
     /*eslint-enable */
 
     const handleChange = e => {

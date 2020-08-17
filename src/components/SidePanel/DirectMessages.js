@@ -64,13 +64,13 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
     }, [users]);
 
     // Unmount
-    useEffect(() => {
+    useState(() => {
         return () => {
             usersRef.off();
             connectedRef.off();
             presenceRef.off();
         }
-    });
+    }, []);
     /*eslint-enable */
 
     const addStatusToUser = (userId, connected = true) => {

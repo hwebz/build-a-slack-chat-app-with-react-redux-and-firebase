@@ -88,20 +88,22 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
     }, [currentChannel]);
 
     useEffect(() => {
-        const channelMessages = [...messages];
-        const regex = new RegExp(searchTerm, 'gi');
-        const results = channelMessages.reduce((acc, message) => {
-            if ((message.content && message.content.match(regex)) || message.user.name.match(regex)) {
-                acc.push(message);
-            }
-            return acc;
-        }, []);
-        setSearchResults(results);
-        // Fake loading
-        setTimeout(() => {
-            setSearchLoading(false);
-        }, 1000);
-    }, [searchTerm]);
+        if (searchTerm) {
+            const channelMessages = [...messages];
+            const regex = new RegExp(searchTerm, 'gi');
+            const results = channelMessages.reduce((acc, message) => {
+                if ((message.content && message.content.match(regex)) || message.user.name.match(regex)) {
+                    acc.push(message);
+                }
+                return acc;
+            }, []);
+            setSearchResults(results);
+            // Fake loading
+            setTimeout(() => {
+                setSearchLoading(false);
+            }, 1000);
+        }
+    }, [searchTerm]); 
 
     useEffect(() => {
         if (currentUser && currentChannel) {
@@ -149,13 +151,15 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
     // Unmount
     useEffect(() => {
         return () => {
-            messagesRef.off();
-            privateMessagesRef.off();
-            usersRef.off();
-            typingRef.off();
+            if (currentChannel && currentUser) {
+                messagesRef.child(currentChannel.id).off();
+                privateMessagesRef.child(currentChannel.id).off();
+                usersRef.child(`${currentUser.uid}/starred`).off();
+                typingRef.child(`${currentChannel.id}/${currentUser.uid}`).off();
+            }
             connectedRef.off();
         }
-    });
+    }, [currentChannel, currentUser]);
     /*eslint-enable */
 
     const addUserStarsListener = (userId, channelId) => {

@@ -49,9 +49,11 @@ const UserPanel = ({ currentUser, clearUser, primaryColor }) => {
     // Unmount
     useEffect(() => {
         return () => {
-            usersRef.off();
+            if (currentUser) {
+                usersRef.child(currentUser.uid).off();
+            }
         }
-    });
+    }, [currentUser]);
     /*eslint-enable */
     
     const handleSignout = () => {
