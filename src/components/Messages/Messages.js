@@ -27,6 +27,7 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
     const [privateChannel] = useState(isPrivateChannel || false);
     const [isChannelStarred, setIsChannelStarred] = useState('');
     const [typingUsers, setTypingUsers] = useState([]);
+    const [listeners, setListeners] = useState([]);
 
     const messagesRef = firebase.database().ref('messages');
     const privateMessagesRef = firebase.database().ref('privateMessages');
@@ -49,6 +50,7 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
                     countUniqueUsers([...loadedMessages]);
                     countUserPosts(loadedMessages);
                 });
+            addToListeners(currentChannel.id, getMessagesRef(), 'child_added');
 
             // typing listeners
             let typingUsrs = [];
@@ -66,13 +68,15 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
                         setTypingUsers([...typingUsrs])
                     }
                 });
+            addToListeners(currentChannel.id, typingRef, 'child_added');
 
             typingRef
                 .child(currentChannel.id)
                 .on('child_removed', snap => {
                     typingUsrs = typingUsrs.filter(usr => usr.id !== snap.key)
                     setTypingUsers([...typingUsrs]);
-                })
+                });
+            addToListeners(currentChannel.id, typingRef, 'child_removed');
 
             connectedRef
                 .on('value', snap => {
@@ -151,16 +155,42 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
     // Unmount
     useEffect(() => {
         return () => {
-            if (currentChannel && currentUser) {
-                messagesRef.child(currentChannel.id).off();
-                privateMessagesRef.child(currentChannel.id).off();
+            if (listeners.length > 0) {
+                removeListeners();
+            }
+            if (currentUser) {
                 usersRef.child(`${currentUser.uid}/starred`).off();
-                typingRef.child(`${currentChannel.id}/${currentUser.uid}`).off();
             }
             connectedRef.off();
         }
-    }, [currentChannel, currentUser]);
+    }, [listeners, currentUser]);
     /*eslint-enable */
+
+    // Add listener to listeners array for later remove on unmount
+    const addToListeners = (id, ref, event) => {
+        const index = listeners.findIndex(listener => {
+            return listener.id === id && listener.ref === ref && listener.event === event
+        });
+
+        if (index === -1) {
+            const newListener = {
+                id,
+                ref,
+                event
+            };
+            setListeners([
+                ...listeners,
+                newListener
+            ]);
+        }
+    }
+
+    // Remove all listeners when unmount
+    const removeListeners = () => {
+        listeners.forEach(listener => {
+            listener.ref.child(listener.id).off(listener.event);
+        })
+    }
 
     const addUserStarsListener = (userId, channelId) => {
         usersRef
