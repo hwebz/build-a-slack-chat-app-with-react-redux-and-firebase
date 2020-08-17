@@ -9,7 +9,7 @@ import MessageList from './MessageList';
 import TypingUserList from './TypingUserList';
 import Skeleton from './Skeleton';
 
-import { setUserPosts } from '../../actions'
+import { setUserPosts, setPrivateChannel } from '../../actions'
 import DisplayIf from '../Common/DisplayIf';
 
 const STARRED_YES = 'STARRED_YES';
@@ -24,7 +24,7 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
     const [searchTerm, setSearchTerm] = useState('');
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
-    const [privateChannel] = useState(isPrivateChannel || false);
+    const [privateChannel, setPrivateChannel] = useState(isPrivateChannel || false);
     const [isChannelStarred, setIsChannelStarred] = useState('');
     const [typingUsers, setTypingUsers] = useState([]);
     const [listeners, setListeners] = useState([]);
@@ -42,6 +42,12 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
             // message listener
             let loadedMessages = [];
             setMessages([]);
+
+            getMessagesRef()
+                .once('value', snap => {
+                    if (!snap.val()) setLoading(false);
+                })
+
             getMessagesRef()
                 .child(currentChannel.id)
                 .on('child_added', snap => {
@@ -89,6 +95,8 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
                             .remove(error => console.log(error));
                     }
                 })
+        } else {
+            setLoading(true);
         }
     }, [currentChannel]);
 
@@ -151,6 +159,12 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
             setChannel(currentChannel);
         }
     }, [currentChannel]);
+
+    useEffect(() => {
+        if (isPrivateChannel) {
+            setPrivateChannel(isPrivateChannel);
+        }
+    }, [isPrivateChannel]);
 
     useEffect(() => {
         // Check all images loaded before scroll down to bottom of the page

@@ -8,6 +8,7 @@ import { setCurrentChannel, setPrivateChannel } from '../../actions';
 
 const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) => {
     const [users, setUsers] = useState([]);
+    const [updatedUsers, setUpdatedUsers] = useState([]);
     const [user, setUser] = useState(currentUser || {});
     const [activeChannelID, setActiveChannelID] = useState('');
 
@@ -17,7 +18,7 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
 
     /*eslint-disable */
     useEffect(() => {
-        if (user) {
+        if (currentUser) {
             let loadedUsers = [];
             usersRef.on('child_added', snap => {
                 if (user.uid !== snap.key) {
@@ -26,13 +27,14 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
                     usr['status'] = 'offline';
                     loadedUsers.push(usr);
                     setUsers([...loadedUsers]);
+                    setUpdatedUsers([...loadedUsers]);
                 }
             })
         }
     }, [currentUser]);
 
     useEffect(() => {
-        if (users.length > 0 && user) {
+        if (updatedUsers.length > 0 && user) {
             connectedRef.on('value', snap => {
                 if (snap.val() === true) {
                     const ref = presenceRef.child(user.uid);
@@ -61,7 +63,7 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
                 }
             });
         }
-    }, [users]);
+    }, [updatedUsers]);
 
     useEffect(() => {
         if (currentUser) setUser(currentUser);

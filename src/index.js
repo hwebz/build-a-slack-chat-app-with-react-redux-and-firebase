@@ -24,12 +24,13 @@ const Root = ({ setUser, clearUser, isLoading }) => {
   /*eslint-disable */
   useEffect(() => {
     firebase.auth().onAuthStateChanged(user => {
+      console.log('authentication: ' + user);
       if (user) {
         setUser(user);
         history.push('/');
       } else {
-        history.push('/login');
         clearUser();
+        history.push('/login');
       }
     });
   }, []);

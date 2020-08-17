@@ -133,7 +133,7 @@ const MessageForm = ({ messagesRef, currentChannel, currentUser, isProgressBarVi
         setModal(false);
     }
 
-    const getPath = () => isPrivateChannel ? `chat/private-${currentChannel.id}` : `chat/public`;
+    const getPath = () => isPrivateChannel ? `chat/private/${currentChannel.id}` : `chat/public`;
 
     const uploadFile = (file, metadata) => {
         console.log(file, metadata);

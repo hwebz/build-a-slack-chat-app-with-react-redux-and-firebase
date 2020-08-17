@@ -7,6 +7,7 @@ import ColorPanel from './ColorPanel/ColorPanel';
 import SidePanel from './SidePanel/SidePanel';
 import Messages from './Messages/Messages';
 import MetaPanel from './MetaPanel/MetaPanel';
+import DisplayIf from './Common/DisplayIf';
 
 function App({ currentUser, currentChannel, isPrivateChannel, userPosts, primaryColor, secondaryColor }) {
 	return (
@@ -22,20 +23,24 @@ function App({ currentUser, currentChannel, isPrivateChannel, userPosts, primary
 				primaryColor={primaryColor}
 			/>
 			<Grid.Column style={{ marginLeft: 320}}>
-				<Messages
-					key="messages"
-					currentChannel={currentChannel}
-					currentUser={currentUser}
-					isPrivateChannel={isPrivateChannel}
-				/>
+				<DisplayIf condition={currentChannel}>
+					<Messages
+						key="messages"
+						currentChannel={currentChannel}
+						currentUser={currentUser}
+						isPrivateChannel={isPrivateChannel}
+					/>
+				</DisplayIf>
 			</Grid.Column>
 			<Grid.Column width={4}>
-				<MetaPanel
-					key="meta-panel"
-					isPrivateChannel={isPrivateChannel}
-					currentChannel={currentChannel}
-					userPosts={userPosts}
-				/>
+				<DisplayIf condition={currentChannel}>
+					<MetaPanel
+						key="meta-panel"
+						isPrivateChannel={isPrivateChannel}
+						currentChannel={currentChannel}
+						userPosts={userPosts}
+					/>
+				</DisplayIf>
 			</Grid.Column>
 		</Grid>
 	);
