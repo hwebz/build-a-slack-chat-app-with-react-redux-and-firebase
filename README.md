@@ -1,6 +1,8 @@
 ## Build a Slack Chat App with React, Redux, and Firebase
 ## Author: Reed Barger
 ### https://www.packtpub.com/programming/build-a-slack-chat-app-with-react-redux-and-firebase-video
+## Github Repo:
+### https://github.com/PacktPublishing/Build-a-Slack-Chat-App-with-React-Redux-and-Firebase
 
 ### Write Firebase Storage Rules for Media Files
 <pre>
@@ -111,3 +113,24 @@ service firebase.storage {
     }
 }
 </pre>
+
+### Deploy our App with Firebase Tools
+> npm i firebase-tools -g<br />
+> firebase login<br />
+> firebase init (<i>Choose Database and Storage options => react-slack-clone => databases.rules.json => storage.rules.json => </i>)<br />
+> npm run build<br />
+#### Add configuration into <i>firebase.json</i>
+<pre>
+{
+    "hosting": {
+        "public": "./build"
+    },
+    "database": {
+        "rules": "database.rules.json"
+    },
+    "storage": {
+        "rules": "storage.rules.json"
+    }
+}
+</pre>
+> firebase deploy
