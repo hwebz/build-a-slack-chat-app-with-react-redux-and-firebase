@@ -16,7 +16,7 @@ const STARRED_YES = 'STARRED_YES';
 const STARRED_NO = 'STARRED_NO';
 
 const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts }) => {
-    const [channel] = useState(currentChannel || {});
+    const [channel, setChannel] = useState(currentChannel || {});
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [progressBar, setProgressBar] = useState(false);
@@ -143,7 +143,11 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
             }
             addUserStarsListener(currentUser.uid, currentChannel.id);
         }
-    }, [isChannelStarred])
+    }, [isChannelStarred]);
+
+    useEffect(() => {
+        if (currentChannel) setChannel(currentChannel);
+    }, [currentChannel]);
 
     useEffect(() => {
         // Check all images loaded before scroll down to bottom of the page

@@ -8,7 +8,7 @@ import { setCurrentChannel, setPrivateChannel } from '../../actions';
 
 const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) => {
     const [users, setUsers] = useState([]);
-    const [user] = useState(currentUser || {});
+    const [user, setUser] = useState(currentUser || {});
     const [activeChannelID, setActiveChannelID] = useState('');
 
     const usersRef = firebase.database().ref('users');
@@ -62,6 +62,10 @@ const DirectMessages = ({ currentUser, setCurrentChannel, setPrivateChannel }) =
             });
         }
     }, [users]);
+
+    useEffect(() => {
+        if (currentUser) setUser(currentUser);
+    }, [currentUser]);
 
     // Unmount
     useState(() => {

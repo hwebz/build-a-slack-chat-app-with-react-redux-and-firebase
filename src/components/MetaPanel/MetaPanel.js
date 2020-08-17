@@ -3,7 +3,7 @@ import { Segment, Header, Accordion, Icon, Image } from 'semantic-ui-react';
 import UserList from './UserList';
 
 const MetaPanel = ({ currentChannel, isPrivateChannel, userPosts }) => {
-    const [channel] = useState(currentChannel || {})
+    const [channel, setChannel] = useState(currentChannel || {})
     const [activeIndex, setActiveIndex] = useState(0);
     const [users, setUsers] = useState(userPosts || []);
 
@@ -28,6 +28,10 @@ const MetaPanel = ({ currentChannel, isPrivateChannel, userPosts }) => {
             setUsers(usrs);
         }
     }, [userPosts]);
+
+    useEffect(() => {
+        if (currentChannel) setChannel(currentChannel);
+    }, [currentChannel]);
     /*eslint-enable */
 
     return !isPrivateChannel && (

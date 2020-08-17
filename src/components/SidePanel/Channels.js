@@ -5,7 +5,7 @@ import firebase from '../../firebase';
 import ChannelList from './ChannelList';
 
 const Channels = ({ currentUser, currentChannel }) => {
-    const [user] = useState(currentUser || {});
+    const [user, setUser] = useState(currentUser || {});
     const [channels, setChannels] = useState([]);
     const [modal, setModal] = useState(false);
     const [channelName, setChannelName] = useState('');
@@ -35,6 +35,10 @@ const Channels = ({ currentUser, currentChannel }) => {
         }
     }, [currentChannel]);
 
+    useEffect(() => {
+        if (currentUser) setUser(currentUser);
+    }, [currentUser]);
+
     // Unmount
     useEffect(() => {
         return () => {
@@ -44,6 +48,7 @@ const Channels = ({ currentUser, currentChannel }) => {
             }
         }
     }, [currentChannel, currentUser]);
+    
     /*eslint-enable */
 
     const addNotificationListener = channelId => {

@@ -8,7 +8,7 @@ import DisplayIf from '../Common/DisplayIf'
 import AvatarEditor from 'react-avatar-editor'
 
 const UserPanel = ({ currentUser, clearUser, primaryColor }) => {
-    const [user] = useState(currentUser || {});
+    const [user, setUser] = useState(currentUser || {});
     const [modal, setModal] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [croppedImage, setCroppedImage] = useState('');
@@ -45,6 +45,10 @@ const UserPanel = ({ currentUser, clearUser, primaryColor }) => {
                 }).catch(error => console.log(error));
         }
     }, [uploadedCroppedImage, currentUser]);
+
+    useEffect(() => {
+        if (currentUser) setUser(currentUser);
+    }, [currentUser]);
 
     // Unmount
     useEffect(() => {
