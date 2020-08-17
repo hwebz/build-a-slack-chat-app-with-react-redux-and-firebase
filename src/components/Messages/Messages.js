@@ -41,6 +41,7 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
         if (currentChannel && currentUser) {
             // message listener
             let loadedMessages = [];
+            setMessages([]);
             getMessagesRef()
                 .child(currentChannel.id)
                 .on('child_added', snap => {
@@ -146,7 +147,9 @@ const Messages = ({ currentChannel, currentUser, isPrivateChannel, setUserPosts 
     }, [isChannelStarred]);
 
     useEffect(() => {
-        if (currentChannel) setChannel(currentChannel);
+        if (currentChannel) {
+            setChannel(currentChannel);
+        }
     }, [currentChannel]);
 
     useEffect(() => {
